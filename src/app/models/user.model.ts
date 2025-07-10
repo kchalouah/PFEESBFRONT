@@ -12,6 +12,6 @@ export interface AppUser {
 
 export interface UserRole {
   id?: number
-  name: string
+  roleName: string
   description?: string
 }

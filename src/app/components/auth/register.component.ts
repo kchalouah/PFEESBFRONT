@@ -27,7 +27,7 @@ import { AuthService } from "../../services/auth.service";
   template: `
     <div class="auth-container">
       <mat-card class="auth-card">
-        <img src="/src/assets/images/safran-logo.png" alt="Safran Logo" class="auth-logo" />
+        <img src="assets/images/safran-logo.png" alt="Safran Logo" class="auth-logo" />
         <div class="auth-welcome">Bienvenue sur la plateforme</div>
         <mat-card-header>
           <mat-card-title>Inscription</mat-card-title>
@@ -112,10 +112,29 @@ import { AuthService } from "../../services/auth.service";
         margin-top: var(--space-md);
         text-align: center;
       }
+      .auth-logo {
+        display: block;
+        margin: 0 auto 16px auto;
+        max-width: 90px;
+        max-height: 90px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+      }
+      .auth-welcome {
+        text-align: center;
+        margin-bottom: 16px;
+        font-size: 1.1rem;
+        color: #666;
+      }
       @media (max-width: 768px) {
         .form-row {
           flex-direction: column;
           gap: 0;
+        }
+        .auth-logo {
+          max-width: 70px;
+          max-height: 70px;
         }
       }
     `

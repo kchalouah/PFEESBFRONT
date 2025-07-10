@@ -66,49 +66,48 @@
   --transition-slow: 0.4s ease;
 }
 
-// Dark mode theme
-@media (prefers-color-scheme: dark) {
-  :root {
-    // Invert the color scheme for dark mode
-    --primary-color: #5c6bc0;
-    --primary-light: #8e99f3;
-    --primary-dark: #26418f;
+// Dark mode theme - Only applied when user explicitly selects dark mode
+// Removed automatic dark mode detection to prevent black background
+.dark-mode {
+  // Invert the color scheme for dark mode
+  --primary-color: #5c6bc0;
+  --primary-light: #8e99f3;
+  --primary-dark: #26418f;
 
-    --accent-color: #26c6da;
-    --accent-light: #6ff9ff;
-    --accent-dark: #0095a8;
+  --accent-color: #26c6da;
+  --accent-light: #6ff9ff;
+  --accent-dark: #0095a8;
 
-    // Text colors - lighter for dark mode
-    --text-color: #e0e0e0;
-    --text-light: #b0b0b0;
-    --text-muted: #909090;
+  // Text colors - lighter for dark mode
+  --text-color: #e0e0e0;
+  --text-light: #b0b0b0;
+  --text-muted: #909090;
 
-    // Background colors - darker for dark mode
-    --background-color: #121212;
-    --background-light: #1e1e1e;
-    --background-card: #ffffff;
-    --background-elevated: #383838;
+  // Background colors - darker for dark mode
+  --background-color: #121212;
+  --background-light: #1e1e1e;
+  --background-card: #2a2a2a;
+  --background-elevated: #383838;
 
-    // Border and divider colors
-    --border-color: #ffffff;
-    --divider-color: rgba(255, 255, 255, 0.12);
+  // Border and divider colors
+  --border-color: #444444;
+  --divider-color: rgba(255, 255, 255, 0.12);
 
-    // Shadow colors
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --shadow-color-darker: rgba(0, 0, 0, 0.4);
+  // Shadow colors
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-color-darker: rgba(0, 0, 0, 0.4);
 
-    // Status colors - slightly muted for dark mode
-    --success-light: rgba(76, 175, 80, 0.2);
-    --warning-light: rgba(255, 152, 0, 0.2);
-    --error-light: rgba(244, 67, 54, 0.2);
-    --info-light: rgba(33, 150, 243, 0.2);
-  }
+  // Status colors - slightly muted for dark mode
+  --success-light: rgba(76, 175, 80, 0.2);
+  --warning-light: rgba(255, 152, 0, 0.2);
+  --error-light: rgba(244, 67, 54, 0.2);
+  --info-light: rgba(33, 150, 243, 0.2);
 }
 
 html, body {
   height: 100%;
   margin: 0;
-  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
   background-color: var(--background-light);
   color: var(--text-color);
   font-size: 16px;

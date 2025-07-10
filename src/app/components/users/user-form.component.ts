@@ -68,7 +68,7 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog"
           <mat-label>Rôles</mat-label>
           <mat-select formControlName="roleIds" multiple>
             <mat-option *ngFor="let role of roles" [value]="role.id">
-              {{ role.name }}
+              {{ role.roleName }}
             </mat-option>
           </mat-select>
         </mat-form-field>

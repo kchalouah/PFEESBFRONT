@@ -29,6 +29,10 @@ export class AuthService {
       tap((response: any) => {
         if (response.token) {
           localStorage.setItem(this.tokenKey, response.token)
+          // Store roles if they exist in the response
+          if (response.roles) {
+            localStorage.setItem('user_roles', JSON.stringify(response.roles))
+          }
           this.setCurrentUserFromToken(response.token)
           this.router.navigate(["/dashboard"])
         }
@@ -50,6 +54,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.tokenKey)
+    localStorage.removeItem('user_roles')
     this.currentUserSubject.next(null)
     this.router.navigate(["/login"])
   }
@@ -62,9 +67,27 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey)
   }
 
+  hasRole(role: string): boolean {
+    const rolesString = localStorage.getItem('user_roles')
+    if (!rolesString) {
+      return false
+    }
+
+    const roles = JSON.parse(rolesString)
+    return roles.includes(role)
+  }
+
   private setCurrentUserFromToken(token: string): void {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]))
+
+      // Get roles from localStorage if they exist
+      const rolesString = localStorage.getItem('user_roles')
+      if (rolesString) {
+        const roles = JSON.parse(rolesString)
+        payload.roles = roles
+      }
+
       this.currentUserSubject.next(payload)
     } catch (error) {
       console.error("Error decoding token:", error)

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core"
+import { Component, OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { RouterOutlet, RouterModule } from "@angular/router"
 import { MatToolbarModule } from "@angular/material/toolbar"
@@ -32,7 +32,7 @@ import { AuthService } from "./services/auth.service"
         <mat-sidenav #drawer class="sidenav" fixedInViewport [mode]="'over'">
           <div class="sidenav-header">
             <div class="app-logo">
-              <div class="logo-icon"></div>
+              <img src="assets/images/safran-logo.png" alt="Safran Logo" class="logo-image" />
               <span class="app-name">PFE Aziz</span>
             </div>
             <button mat-icon-button class="close-sidenav" (click)="drawer.close()">
@@ -45,8 +45,8 @@ import { AuthService } from "./services/auth.service"
               <mat-icon>account_circle</mat-icon>
             </div>
             <div class="user-info">
-              <div class="user-name">Utilisateur</div>
-              <div class="user-role">Administrateur</div>
+              <div class="user-name">{{ username }}</div>
+              <div class="user-role">{{ userRole }}</div>
             </div>
           </div>
 
@@ -63,9 +63,9 @@ import { AuthService } from "./services/auth.service"
               </a>
             </div>
 
-            <div class="nav-section">
+            <div class="nav-section" *ngIf="hasRole('ROLE_MANAGER') || hasRole('ROLE_ADMIN')">
               <div class="nav-section-title">Gestion</div>
-              <a mat-list-item routerLink="/users" routerLinkActive="active-link" (click)="drawer.close()">
+              <a mat-list-item routerLink="/users" routerLinkActive="active-link" (click)="drawer.close()" *ngIf="hasRole('ROLE_ADMIN')">
                 <mat-icon>people</mat-icon>
                 <span>Utilisateurs</span>
               </a>
@@ -103,14 +103,13 @@ import { AuthService } from "./services/auth.service"
                 <button mat-icon-button class="menu-button" (click)="drawer.toggle()">
                   <mat-icon>menu</mat-icon>
                 </button>
-                <span class="app-title">PFE Aziz - Gestion</span>
+                <div class="toolbar-logo">
+                  <img src="assets/images/safran-logo.png" alt="Safran Logo" class="toolbar-logo-image" />
+                  <span class="app-title">PFE Aziz - Gestion</span>
+                </div>
               </div>
 
               <div class="toolbar-right">
-                <button mat-icon-button class="toolbar-icon" aria-label="Notifications">
-                  <mat-icon matBadge="3" matBadgeColor="accent">notifications</mat-icon>
-                </button>
-
                 <button mat-icon-button class="toolbar-icon" [matMenuTriggerFor]="userMenu" aria-label="Menu utilisateur">
                   <mat-icon>account_circle</mat-icon>
                 </button>
@@ -120,8 +119,8 @@ import { AuthService } from "./services/auth.service"
                     <div class="menu-user-info">
                       <mat-icon class="menu-user-avatar">account_circle</mat-icon>
                       <div class="menu-user-details">
-                        <div class="menu-user-name">Utilisateur</div>
-                        <div class="menu-user-email">user&#64;example.com</div>
+                        <div class="menu-user-name">{{ username }}</div>
+                        <div class="menu-user-email">{{ userRole }}</div>
                       </div>
                     </div>
                   </div>
@@ -170,8 +169,8 @@ import { AuthService } from "./services/auth.service"
     .sidenav {
       width: 280px;
       border-right: none;
-      box-shadow: var(--shadow-md);
-      background-color: var(--background-card);
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      background-color: white;
       display: flex;
       flex-direction: column;
     }
@@ -190,23 +189,22 @@ import { AuthService } from "./services/auth.service"
       gap: var(--space-sm);
     }
 
-    .logo-icon {
+    .logo-image {
       width: 32px;
       height: 32px;
-      background-color: var(--primary-color);
-      border-radius: var(--radius-sm);
-      position: relative;
-      overflow: hidden;
+      object-fit: contain;
     }
 
-    .logo-icon::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+    .toolbar-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .toolbar-logo-image {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
     }
 
     .app-name {
@@ -274,28 +272,32 @@ import { AuthService } from "./services/auth.service"
 
     .mat-nav-list a {
       margin: var(--space-xs) var(--space-sm);
-      border-radius: var(--radius-sm);
-      transition: all var(--transition-fast);
+      border-radius: 8px;
+      transition: all 0.2s ease;
       height: 48px;
-      color: var(--text-color);
+      color: #333;
+      font-weight: 400;
     }
 
     .mat-nav-list a:hover {
-      background-color: var(--background-light);
+      background-color: #f5f5f5;
+      transform: translateX(3px);
     }
 
     .mat-nav-list a.active-link {
-      background-color: var(--primary-light);
-      color: white;
+      background-color: #f0f7ff;
+      color: #1976d2;
+      font-weight: 500;
+      border-left: 3px solid #1976d2;
     }
 
     .mat-nav-list a.active-link mat-icon {
-      color: white;
+      color: #1976d2;
     }
 
     .mat-nav-list a mat-icon {
       margin-right: var(--space-md);
-      color: var(--text-light);
+      color: #666;
     }
 
     .sidenav-footer {
@@ -316,11 +318,12 @@ import { AuthService } from "./services/auth.service"
       position: sticky;
       top: 0;
       z-index: 2;
-      box-shadow: var(--shadow-sm);
-      background-color: var(--background-card);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background-color: white;
       color: var(--text-color);
       height: 64px;
       padding: 0 var(--space-md);
+      border-bottom: 1px solid #f0f0f0;
     }
 
     .toolbar-container {
@@ -393,8 +396,36 @@ import { AuthService } from "./services/auth.service"
   `,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  currentUser: any = null;
+  username: string = '';
+  userRole: string = '';
+
   constructor(public authService: AuthService) {}
+
+  ngOnInit() {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      if (user) {
+        this.username = user.sub || 'Utilisateur';
+
+        // Get the highest priority role for display
+        if (user.roles && user.roles.length > 0) {
+          if (user.roles.includes('ROLE_ADMIN')) {
+            this.userRole = 'Administrateur';
+          } else if (user.roles.includes('ROLE_MANAGER')) {
+            this.userRole = 'Manager';
+          } else {
+            this.userRole = 'Utilisateur';
+          }
+        }
+      }
+    });
+  }
+
+  hasRole(role: string): boolean {
+    return this.authService.hasRole(role);
+  }
 
   logout() {
     this.authService.logout()
