@@ -8,6 +8,8 @@ import { MatDialogModule, MatDialog } from "@angular/material/dialog"
 import { MachineService } from "../../services/machine.service"
 import { Machine } from "../../models/ilot.model"
 import { MachineFormComponent } from "./machine-form.component"
+import { IlotService } from "../../services/ilot.service"
+import { Ilot } from "../../models/ilot.model"
 
 @Component({
   selector: "app-machine-list",
@@ -48,7 +50,7 @@ import { MachineFormComponent } from "./machine-form.component"
 
             <ng-container matColumnDef="ilot">
               <th mat-header-cell *matHeaderCellDef>Îlot</th>
-              <td mat-cell *matCellDef="let machine">{{ machine.ilot?.name }}</td>
+              <td mat-cell *matCellDef="let machine">{{ getIlotName(machine) }}</td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
@@ -84,15 +86,30 @@ import { MachineFormComponent } from "./machine-form.component"
 })
 export class MachineListComponent implements OnInit {
   machines: Machine[] = []
+  ilots: Ilot[] = []
   displayedColumns: string[] = ["id", "name", "type", "model", "ilot", "actions"]
 
   constructor(
     private machineService: MachineService,
+    private ilotService: IlotService,
     private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
-    this.loadMachines()
+    this.loadIlots()
+  }
+
+  loadIlots() {
+    this.ilotService.getAllIlots().subscribe({
+      next: (ilots) => {
+        this.ilots = ilots
+        this.loadMachines()
+      },
+      error: (error) => {
+        console.error("Error loading ilots:", error)
+        this.loadMachines()
+      },
+    })
   }
 
   loadMachines() {
@@ -134,5 +151,14 @@ export class MachineListComponent implements OnInit {
         },
       })
     }
+  }
+
+  getIlotName(machine: Machine): string {
+    if (machine.ilot && machine.ilot.name) return machine.ilot.name
+    if (machine.ilot && machine.ilot.id) {
+      const found = this.ilots.find(i => i.id === machine.ilot?.id)
+      return found?.name ?? "-"
+    }
+    return "-"
   }
 }

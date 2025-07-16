@@ -97,6 +97,28 @@ export class DemandeService {
   createBatchDemandesFinale(demandes: DemandeFinale[]): Observable<DemandeFinale[]> {
     return this.http.post<DemandeFinale[]>(`${this.apiUrl}/demandes_finale/batch`, demandes)
   }
+  setFinalDecision(id: number, decision: string, managerId?: number): Observable<DemandeFinale> {
+    const params = new URLSearchParams();
+    params.set('decision', decision);
+    if (managerId !== undefined) {
+      params.set('managerId', managerId.toString());
+    }
+
+    return this.http.put<DemandeFinale>(
+      `${this.apiUrl}/demandes_finale/${id}/decision?${params.toString()}`,
+      {}
+    );
+  }
+
+
+  approveDemande(id: number, managerId?: number): Observable<DemandeFinale> {
+    return this.setFinalDecision(id, 'APPROVED', managerId);
+  }
+
+  rejectDemande(id: number, managerId?: number): Observable<DemandeFinale> {
+    return this.setFinalDecision(id, 'REJECTED', managerId);
+  }
+
 
   // Demandes Te
   getAllDemandesTe(): Observable<DemandeTe[]> {
@@ -127,3 +149,4 @@ export class DemandeService {
     return this.http.post<DemandeTe[]>(`${this.apiUrl}/demandes_te/batch`, demandes)
   }
 }
+

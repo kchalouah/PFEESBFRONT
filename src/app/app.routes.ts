@@ -33,8 +33,7 @@ export const routes: Routes = [
   },
   {
     path: "programmes",
-    loadComponent: () =>
-      import("./components/programmes/programme-list.component").then((m) => m.ProgrammeListComponent),
+    loadComponent: () => import("./components/programmes/programme-list.component").then((m) => m.ProgrammeListComponent),
     canActivate: [AuthGuard],
   },
   {
@@ -47,5 +46,10 @@ export const routes: Routes = [
     loadComponent: () => import("./components/metiers/metier-list.component").then((m) => m.MetierListComponent),
     canActivate: [AuthGuard],
   },
+  {
+    path: "profile", // ✅ NOUVELLE ROUTE AJOUTÉE
+    loadComponent: () => import("./components/profile/user-profile.component").then((m) => m.UserProfileComponent),
+    canActivate: [AuthGuard],
+  },
   { path: "**", redirectTo: "/login" },
-]
+];

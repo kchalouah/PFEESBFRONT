@@ -8,7 +8,7 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSelectModule } from "@angular/material/select"
 import { ProgrammeService } from "../../services/programme.service"
 import { MachineService } from "../../services/machine.service"
-import { Programme, Machine } from "../../models/ilot.model"
+import { Programme, Machine, fillProgrammeDefaults } from "../../models/ilot.model"
 
 @Component({
   selector: "app-programme-form",
@@ -46,9 +46,9 @@ import { Programme, Machine } from "../../models/ilot.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Machine</mat-label>
-          <mat-select formControlName="machineId">
-            <mat-option *ngFor="let machine of machines" [value]="machine.id">
-              {{ machine.name }} ({{ machine.ilot?.name }})
+          <mat-select formControlName="machine">
+            <mat-option *ngFor="let machine of machines" [value]="machine">
+              {{ machine.name }} ({{ machine.ilot?.name || '-' }})
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -87,19 +87,20 @@ export class ProgrammeFormComponent implements OnInit {
     this.programmeForm = this.fb.group({
       name: ["", Validators.required],
       description: [""],
-      duration: [""],
-      machineId: [""],
+      duration: [0],
+      machine: [null, Validators.required],
     })
   }
 
   ngOnInit() {
     this.loadMachines()
     if (this.data) {
+      const filled = fillProgrammeDefaults(this.data)
       this.programmeForm.patchValue({
-        name: this.data.name,
-        description: this.data.description,
-        duration: this.data.duration,
-        machineId: this.data.machineId,
+        name: filled.name,
+        description: filled.description,
+        duration: filled.duration,
+        machine: filled.machine,
       })
     }
   }

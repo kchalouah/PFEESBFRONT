@@ -8,7 +8,7 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSelectModule } from "@angular/material/select"
 import { DemandeService } from "../../services/demande.service"
 import { MachineService } from "../../services/machine.service"
-import  { UserService } from "../../services/user.service"
+import { UserService } from "../../services/user.service"
 import { Demande } from "../../models/demande.model"
 import { Machine } from "../../models/ilot.model"
 import { AppUser } from "../../models/user.model"
@@ -30,46 +30,53 @@ import { AppUser } from "../../models/user.model"
     <mat-dialog-content>
       <form [formGroup]="demandeForm">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Titre</mat-label>
-          <input matInput formControlName="title" required>
-          <mat-error *ngIf="demandeForm.get('title')?.hasError('required')">
-            Le titre est requis
-          </mat-error>
+          <mat-label>OF</mat-label>
+          <input matInput formControlName="of_demande" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea matInput formControlName="description" rows="4" required></textarea>
-          <mat-error *ngIf="demandeForm.get('description')?.hasError('required')">
-            La description est requise
-          </mat-error>
+          <mat-label>Date</mat-label>
+          <input matInput type="date" formControlName="date_demande" required />
         </mat-form-field>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Statut</mat-label>
-            <mat-select formControlName="status">
-              <mat-option value="EN_ATTENTE">En attente</mat-option>
-              <mat-option value="EN_COURS">En cours</mat-option>
-              <mat-option value="TERMINE">Terminé</mat-option>
-              <mat-option value="ANNULE">Annulé</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Priorité</mat-label>
-            <mat-select formControlName="priority">
-              <mat-option value="BASSE">Basse</mat-option>
-              <mat-option value="MOYENNE">Moyenne</mat-option>
-              <mat-option value="HAUTE">Haute</mat-option>
-              <mat-option value="CRITIQUE">Critique</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Durée (en minutes)</mat-label>
+          <input matInput type="number" formControlName="duree_en_minutes" />
+        </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Utilisateur</mat-label>
-          <mat-select formControlName="userId">
-            <mat-option *ngFor="let user of users" [value]="user.id">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="EN_ATTENTE">En attente</mat-option>
+            <mat-option value="EN_COURS">En cours</mat-option>
+            <mat-option value="TERMINE">Terminé</mat-option>
+            <mat-option value="ANNULE">Annulé</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Étiquette</mat-label>
+          <input matInput formControlName="etq" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre de produits contrôlés</mat-label>
+          <input matInput type="number" formControlName="nombre_produit_controle" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Opérateur</mat-label>
+          <mat-select formControlName="operateur">
+            <mat-option *ngFor="let user of users" [value]="user">
+              {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contrôleur</mat-label>
+          <mat-select formControlName="controleur">
+            <mat-option *ngFor="let user of users" [value]="user">
               {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
             </mat-option>
           </mat-select>
@@ -77,14 +84,15 @@ import { AppUser } from "../../models/user.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Machine</mat-label>
-          <mat-select formControlName="machineId">
-            <mat-option *ngFor="let machine of machines" [value]="machine.id">
+          <mat-select formControlName="machine">
+            <mat-option *ngFor="let machine of machines" [value]="machine">
               {{ machine.name }} ({{ machine.ilot?.name }})
             </mat-option>
           </mat-select>
         </mat-form-field>
       </form>
     </mat-dialog-content>
+
     <mat-dialog-actions align="end">
       <button mat-button (click)="onCancel()">Annuler</button>
       <button mat-raised-button color="primary" (click)="onSave()" [disabled]="demandeForm.invalid">
@@ -92,8 +100,7 @@ import { AppUser } from "../../models/user.model"
       </button>
     </mat-dialog-actions>
   `,
-  styles: [
-    `
+  styles: [`
     .full-width {
       width: 100%;
       margin-bottom: 16px;
@@ -101,14 +108,13 @@ import { AppUser } from "../../models/user.model"
     mat-dialog-content {
       min-width: 600px;
     }
-  `,
-  ],
+  `],
 })
 export class DemandeFormComponent implements OnInit {
-  demandeForm: FormGroup
-  machines: Machine[] = []
-  users: AppUser[] = []
-  data: Demande | null
+  demandeForm: FormGroup;
+  machines: Machine[] = [];
+  users: AppUser[] = [];
+  data: Demande | null;
 
   constructor(
     private fb: FormBuilder,
@@ -118,81 +124,58 @@ export class DemandeFormComponent implements OnInit {
     private dialogRef: MatDialogRef<DemandeFormComponent>,
     @Inject(MAT_DIALOG_DATA) data: Demande | null,
   ) {
-    this.data = data
+    this.data = data;
     this.demandeForm = this.fb.group({
-      title: ["", Validators.required],
-      description: ["", Validators.required],
-      status: ["EN_ATTENTE", Validators.required],
-      priority: ["MOYENNE", Validators.required],
-      userId: [""],
-      machineId: [""],
-    })
+      of_demande: ["", Validators.required],
+      date_demande: ["", Validators.required],
+      status: ["EN_ATTENTE"],
+      duree_en_minutes: [0],
+      etq: [""],
+      nombre_produit_controle: [0],
+      machine: [""],
+      operateur: [""],
+      controleur: [""],
+    });
   }
 
   ngOnInit() {
-    this.loadMachines()
-    this.loadUsers()
+    this.loadMachines();
+    this.loadUsers();
     if (this.data) {
-      this.demandeForm.patchValue({
-        title: this.data.title,
-        description: this.data.description,
-        status: this.data.status,
-        priority: this.data.priority,
-        userId: this.data.userId,
-        machineId: this.data.machineId,
-      })
+      this.demandeForm.patchValue(this.data);
     }
   }
 
   loadMachines() {
     this.machineService.getAllMachines().subscribe({
-      next: (machines) => {
-        this.machines = machines
-      },
-      error: (error) => {
-        console.error("Error loading machines:", error)
-      },
-    })
+      next: (machines) => (this.machines = machines),
+      error: (error) => console.error("Error loading machines:", error),
+    });
   }
 
   loadUsers() {
     this.userService.getAllUsers().subscribe({
-      next: (users) => {
-        this.users = users
-      },
-      error: (error) => {
-        console.error("Error loading users:", error)
-      },
-    })
+      next: (users) => (this.users = users),
+      error: (error) => console.error("Error loading users:", error),
+    });
   }
 
   onSave() {
     if (this.demandeForm.valid) {
-      const demandeData = this.demandeForm.value
+      const demandeData: Demande = this.demandeForm.value;
 
-      if (this.data) {
-        this.demandeService.updateDemande(this.data.id!, demandeData).subscribe({
-          next: () => {
-            this.dialogRef.close(true)
-          },
-          error: (error) => {
-            console.error("Error updating demande:", error)
-          },
-        })
-      } else {
-        this.demandeService.createDemande(demandeData).subscribe({
-          next: () => {
-            this.dialogRef.close(true)
-          },
-          error: (error) => {
-            console.error("Error creating demande:", error)
-          },
-        })
-      }
+      const request = this.data
+        ? this.demandeService.updateDemande(this.data.id!, demandeData)
+        : this.demandeService.createDemande(demandeData);
+
+      request.subscribe({
+        next: () => this.dialogRef.close(true),
+        error: (error) => console.error("Error saving demande:", error),
+      });
     }
   }
 
   onCancel() {
-    this.dialogRef.close(false)
+    this.dialogRef.close(false);
   }
 }

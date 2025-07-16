@@ -52,8 +52,8 @@ import { Machine, Ilot } from "../../models/ilot.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Îlot</mat-label>
-          <mat-select formControlName="ilotId">
-            <mat-option *ngFor="let ilot of ilots" [value]="ilot.id">
+          <mat-select formControlName="ilot">
+            <mat-option *ngFor="let ilot of ilots" [value]="ilot">
               {{ ilot.name }}
             </mat-option>
           </mat-select>
@@ -95,7 +95,7 @@ export class MachineFormComponent implements OnInit {
       type: [""],
       model: [""],
       serialNumber: [""],
-      ilotId: [""],
+      ilot: [""],
     })
   }
 
@@ -107,7 +107,7 @@ export class MachineFormComponent implements OnInit {
         type: this.data.type,
         model: this.data.model,
         serialNumber: this.data.serialNumber,
-        ilotId: this.data.ilotId,
+        ilot: this.data.ilot || "",
       })
     }
   }

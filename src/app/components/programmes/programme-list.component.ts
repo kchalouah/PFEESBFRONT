@@ -8,6 +8,8 @@ import { MatDialogModule, MatDialog } from "@angular/material/dialog"
 import  { ProgrammeService } from "../../services/programme.service"
 import { Programme } from "../../models/ilot.model"
 import { ProgrammeFormComponent } from "./programme-form.component"
+import { MachineService } from "../../services/machine.service"
+import { Machine } from "../../models/ilot.model"
 
 @Component({
   selector: "app-programme-list",
@@ -38,17 +40,17 @@ import { ProgrammeFormComponent } from "./programme-form.component"
 
             <ng-container matColumnDef="description">
               <th mat-header-cell *matHeaderCellDef>Description</th>
-              <td mat-cell *matCellDef="let programme">{{ programme.description }}</td>
+              <td mat-cell *matCellDef="let programme">{{ programme.description || '-' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="duration">
               <th mat-header-cell *matHeaderCellDef>Durée (min)</th>
-              <td mat-cell *matCellDef="let programme">{{ programme.duration }}</td>
+              <td mat-cell *matCellDef="let programme">{{ programme.duration ?? '-' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="machine">
               <th mat-header-cell *matHeaderCellDef>Machine</th>
-              <td mat-cell *matCellDef="let programme">{{ programme.machine?.name }}</td>
+              <td mat-cell *matCellDef="let programme">{{ getMachineName(programme) }}</td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
@@ -84,15 +86,30 @@ import { ProgrammeFormComponent } from "./programme-form.component"
 })
 export class ProgrammeListComponent implements OnInit {
   programmes: Programme[] = []
+  machines: Machine[] = []
   displayedColumns: string[] = ["id", "name", "description", "duration", "machine", "actions"]
 
   constructor(
     private programmeService: ProgrammeService,
+    private machineService: MachineService,
     private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
-    this.loadProgrammes()
+    this.loadMachines()
+  }
+
+  loadMachines() {
+    this.machineService.getAllMachines().subscribe({
+      next: (machines) => {
+        this.machines = machines
+        this.loadProgrammes()
+      },
+      error: (error) => {
+        console.error("Error loading machines:", error)
+        this.loadProgrammes()
+      },
+    })
   }
 
   loadProgrammes() {
@@ -104,6 +121,15 @@ export class ProgrammeListComponent implements OnInit {
         console.error("Error loading programmes:", error)
       },
     })
+  }
+
+  getMachineName(programme: Programme): string {
+    if (programme.machine && programme.machine.name) return programme.machine.name
+    if (programme.machine && programme.machine.id) {
+      const found = this.machines.find(m => m.id === programme.machine?.id)
+      return found?.name ?? "-"
+    }
+    return "-"
   }
 
   openProgrammeForm(programme?: Programme) {

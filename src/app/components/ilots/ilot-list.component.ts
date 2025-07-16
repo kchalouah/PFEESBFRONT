@@ -38,12 +38,12 @@ import { IlotFormComponent } from "./ilot-form.component"
 
             <ng-container matColumnDef="description">
               <th mat-header-cell *matHeaderCellDef>Description</th>
-              <td mat-cell *matCellDef="let ilot">{{ ilot.description }}</td>
+              <td mat-cell *matCellDef="let ilot">{{ ilot.description || '-' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="location">
               <th mat-header-cell *matHeaderCellDef>Emplacement</th>
-              <td mat-cell *matCellDef="let ilot">{{ ilot.location }}</td>
+              <td mat-cell *matCellDef="let ilot">{{ ilot.location || '-' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
