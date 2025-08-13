@@ -15,6 +15,10 @@ import { DemandeDelegueFormComponent } from "./demande-delegue-form.component"
 import { DemandeTeFormComponent } from "./demande-te-form.component"
 import { AuthService } from "../../services/auth.service"
 import { ExcelExportService } from '../../services/excel-export.service'
+import { DemandeGeneraleListComponent } from './demande-generale-list.component';
+import { DemandeDelegueListComponent } from './demande-delegue-list.component';
+import { DemandeFinaleListComponent } from './demande-finale-list.component';
+import { DemandeTeListComponent } from './demande-te-list.component';
 
 @Component({
   selector: "app-demande-list",
@@ -28,9 +32,12 @@ import { ExcelExportService } from '../../services/excel-export.service'
     MatChipsModule,
     MatDialogModule,
     MatTabsModule,
+    DemandeGeneraleListComponent,
+    DemandeDelegueListComponent,
+    DemandeFinaleListComponent,
+    DemandeTeListComponent
   ],
   template: `
-    <!-- Your existing template unchanged -->
     <div class="container">
       <mat-card>
         <mat-card-header>
@@ -38,206 +45,81 @@ import { ExcelExportService } from '../../services/excel-export.service'
         </mat-card-header>
         <mat-card-content>
           <mat-tab-group>
-
-            <!-- Onglet Demandes Générales -->
             <mat-tab label="Demandes Générales">
-              <div class="tab-content">
-                <button mat-raised-button color="primary" (click)="openDemandeForm()">Ajouter Demande</button>
-                <table mat-table [dataSource]="demandes" class="mat-elevation-z8">
-
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> ID </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="of_demande">
-                    <th mat-header-cell *matHeaderCellDef> OF Demande </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef> Statut </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef> Actions </th>
-                    <td mat-cell *matCellDef="let demande">
-                      <button mat-icon-button color="primary" (click)="editDemande(demande)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" (click)="deleteDemande(demande.id!)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                      <button *ngIf="isAdmin()" mat-button color="accent" (click)="approveDemande(demande.id!)">Approuver</button>
-                      <button *ngIf="isAdmin()" mat-button color="warn" (click)="rejectDemande(demande.id!)">Rejeter</button>
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="['id', 'of_demande', 'status', 'actions']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['id', 'of_demande', 'status', 'actions'];"></tr>
-                </table>
+              <div class="tab-header">
+                <button mat-raised-button color="primary" (click)="exportDemandesToExcel('generale')">
+                  Exporter Excel
+                </button>
               </div>
+              <app-demande-generale-list [demandes]="demandes"></app-demande-generale-list>
             </mat-tab>
-
-            <!-- Onglet Demandes Déléguées -->
             <mat-tab label="Demandes Déléguées">
-              <div class="tab-content">
-                <button mat-raised-button color="primary" (click)="openDemandeDelegueForm()">Ajouter Demande Déléguée</button>
-                <table mat-table [dataSource]="demandesDelegue" class="mat-elevation-z8">
-
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> ID </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="of_demande">
-                    <th mat-header-cell *matHeaderCellDef> OF Demande </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="delegatedTo">
-                    <th mat-header-cell *matHeaderCellDef> Délégué à </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.delegatedTo?.firstName}} {{demande.delegatedTo?.lastName}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="delegationDate">
-                    <th mat-header-cell *matHeaderCellDef> Date de Délégation </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.delegationDate | date:'dd/MM/yyyy'}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef> Statut </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef> Actions </th>
-                    <td mat-cell *matCellDef="let demande">
-                      <button mat-icon-button color="primary" (click)="editDemandeDelegue(demande)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" (click)="deleteDemandeDelegue(demande.id!)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                      <button *ngIf="isAdmin()" mat-button color="accent" (click)="approveDemande(demande.id!)">Approuver</button>
-                      <button *ngIf="isAdmin()" mat-button color="warn" (click)="rejectDemande(demande.id!)">Rejeter</button>
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="['id', 'of_demande', 'delegatedTo', 'delegationDate', 'status', 'actions']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['id', 'of_demande', 'delegatedTo', 'delegationDate', 'status', 'actions'];"></tr>
-                </table>
+              <div class="tab-header">
+                <button mat-raised-button color="primary" (click)="exportDemandesToExcel('delegue')">
+                  Exporter Excel
+                </button>
               </div>
+              <app-demande-delegue-list [demandesDelegue]="demandesDelegue"></app-demande-delegue-list>
             </mat-tab>
-
-            <!-- Onglet Demandes Finales -->
             <mat-tab label="Demandes Finales">
-              <div class="tab-content">
-                <button mat-raised-button color="primary" (click)="openDemandeFinaleForm()">Ajouter Demande Finale</button>
-                <table mat-table [dataSource]="demandesFinale" class="mat-elevation-z8">
-
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> ID </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="of_demande">
-                    <th mat-header-cell *matHeaderCellDef> OF Demande </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="finalDecision">
-                    <th mat-header-cell *matHeaderCellDef> Décision Finale </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.finalDecision}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="approvedDate">
-                    <th mat-header-cell *matHeaderCellDef> Date d'Approbation </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.approvedDate | date:'dd/MM/yyyy'}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef> Statut </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef> Actions </th>
-                    <td mat-cell *matCellDef="let demande">
-                      <button mat-icon-button color="primary" (click)="editDemandeFinale(demande)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" (click)="deleteDemandeFinale(demande.id!)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                      <button *ngIf="isAdmin()" mat-button color="accent" (click)="approveDemande(demande.id!)">Approuver</button>
-                      <button *ngIf="isAdmin()" mat-button color="warn" (click)="rejectDemande(demande.id!)">Rejeter</button>
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="['id', 'of_demande', 'finalDecision', 'approvedDate', 'status', 'actions']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['id', 'of_demande', 'finalDecision', 'approvedDate', 'status', 'actions'];"></tr>
-                </table>
+              <div class="tab-header">
+                <button mat-raised-button color="primary" (click)="exportDemandesToExcel('finale')">
+                  Exporter Excel
+                </button>
+                <button mat-raised-button color="accent" (click)="openDemandeFinaleForm()" *ngIf="canAddDemande()">
+                  Ajouter Demande Finale
+                </button>
               </div>
+              <!-- Table with approve/reject buttons for demandes finales -->
+              <table mat-table [dataSource]="demandesFinale" class="mat-elevation-z8">
+                <!-- Columns -->
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef> ID </th>
+                  <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
+                </ng-container>
+                <ng-container matColumnDef="of_demande">
+                  <th mat-header-cell *matHeaderCellDef> OF </th>
+                  <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
+                </ng-container>
+                <ng-container matColumnDef="date_demande">
+                  <th mat-header-cell *matHeaderCellDef> Date </th>
+                  <td mat-cell *matCellDef="let demande"> {{demande.date_demande}} </td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef> Statut </th>
+                  <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
+                </ng-container>
+                <ng-container matColumnDef="finalDecision">
+                  <th mat-header-cell *matHeaderCellDef> Décision finale </th>
+                  <td mat-cell *matCellDef="let demande"> {{demande.finalDecision || '-' }} </td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef> Actions </th>
+                  <td mat-cell *matCellDef="let demande">
+                    <ng-container *ngIf="canApproveDemande()">
+                      <button mat-button color="primary" (click)="approveDemande(demande.id)" [disabled]="demande.finalDecision === 'Approuvée'">Approuver</button>
+                      <button mat-button color="warn" (click)="rejectDemande(demande.id)" [disabled]="demande.finalDecision === 'Rejetée'">Rejeter</button>
+                    </ng-container>
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="['id', 'of_demande', 'date_demande', 'status', 'finalDecision', 'actions']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['id', 'of_demande', 'date_demande', 'status', 'finalDecision', 'actions'];"></tr>
+              </table>
+              <!-- Optionally keep the old list below if needed -->
+              <!-- <app-demande-finale-list [demandesFinale]="demandesFinale"></app-demande-finale-list> -->
             </mat-tab>
-
-            <!-- Onglet Demandes TE -->
             <mat-tab label="Demandes TE">
-              <div class="tab-content">
-                <button mat-raised-button color="primary" (click)="openDemandeTeForm()">Ajouter Demande TE</button>
-                <table mat-table [dataSource]="demandesTe" class="mat-elevation-z8">
-
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> ID </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="of_demande">
-                    <th mat-header-cell *matHeaderCellDef> OF Demande </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="teSpecificField">
-                    <th mat-header-cell *matHeaderCellDef> Champ TE </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.teSpecificField}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="teStatus">
-                    <th mat-header-cell *matHeaderCellDef> Statut TE </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.teStatus}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef> Statut </th>
-                    <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef> Actions </th>
-                    <td mat-cell *matCellDef="let demande">
-                      <button mat-icon-button color="primary" (click)="editDemandeTe(demande)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" (click)="deleteDemandeTe(demande.id!)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                      <button *ngIf="isAdmin()" mat-button color="accent" (click)="approveDemande(demande.id!)">Approuver</button>
-                      <button *ngIf="isAdmin()" mat-button color="warn" (click)="rejectDemande(demande.id!)">Rejeter</button>
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="['id', 'of_demande', 'teSpecificField', 'teStatus', 'status', 'actions']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['id', 'of_demande', 'teSpecificField', 'teStatus', 'status', 'actions'];"></tr>
-                </table>
+              <div class="tab-header">
+                <button mat-raised-button color="primary" (click)="exportDemandesToExcel('te')">
+                  Exporter Excel
+                </button>
               </div>
+              <app-demande-te-list [demandesTe]="demandesTe"></app-demande-te-list>
             </mat-tab>
-
           </mat-tab-group>
         </mat-card-content>
       </mat-card>
     </div>
-
   `,
   styles: [
     `
@@ -262,12 +144,25 @@ import { ExcelExportService } from '../../services/excel-export.service'
   ],
 })
 export class DemandeListComponent implements OnInit {
-  demandes: Demande[] = []
-  demandesDelegue: DemandeDelegue[] = []
-  demandesFinale: DemandeFinale[] = []
-  demandesTe: DemandeTe[] = []
+  demandes: Demande[] = [];
+  demandesDelegue: DemandeDelegue[] = [];
+  demandesFinale: DemandeFinale[] = [];
+  demandesTe: DemandeTe[] = [];
 
-  demandeColumns: string[] = ["id", "title", "status", "priority", "actions"]
+  demandeColumns: string[] = [
+    "id",
+    "of_demande",
+    "date_demande",
+    "status",
+    "duree_en_minutes",
+    "etq",
+    "started",
+    "finished",
+    "nombre_produit_controle",
+    "operateur",
+    "controleur",
+    "actions"
+  ]
   demandeDelegueColumns: string[] = ["id", "title", "delegatedTo", "delegationDate", "status", "actions"]
   demandeFinaleColumns: string[] = ["id", "title", "finalDecision", "finalDate", "status", "actions"]
   demandeTeColumns: string[] = ["id", "title", "teSpecificField", "teStatus", "status", "actions"]
@@ -282,12 +177,10 @@ export class DemandeListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Subscribe to current user from auth service
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user
     })
-
-    this.loadAllDemandes()
+    this.loadAllDemandes();
   }
 
   loadAllDemandes() {
@@ -471,7 +364,10 @@ export class DemandeListComponent implements OnInit {
       console.error("Manager id not found for approval")
       return
     }
-    this.demandeService.approveDemande(id, managerId).subscribe(() => this.loadAllDemandes())
+    this.demandeService.approveDemande(id, managerId).subscribe({
+      next: () => this.loadDemandesFinale(),
+      error: (error) => console.error("Error approving demande:", error)
+    });
   }
 
   rejectDemande(id: number) {
@@ -480,11 +376,41 @@ export class DemandeListComponent implements OnInit {
       console.error("Manager id not found for rejection")
       return
     }
-    this.demandeService.rejectDemande(id, managerId).subscribe(() => this.loadAllDemandes())
+    this.demandeService.rejectDemande(id, managerId).subscribe({
+      next: () => this.loadDemandesFinale(),
+      error: (error) => console.error("Error rejecting demande:", error)
+    });
   }
 
   isAdmin(): boolean {
-    return this.authService.hasRole("ADMIN")
+    return this.authService.hasRole("ROLE_ADMIN")
+  }
+
+  isManager(): boolean {
+    return this.authService.hasRole("ROLE_MANAGER")
+  }
+
+  isControleur(): boolean {
+    return this.authService.hasRole("ROLE_CONTROLEUR")
+  }
+
+  isOperateur(): boolean {
+    return this.authService.hasRole("ROLE_OPERATEUR")
+  }
+
+  canAddDemande(): boolean {
+    // Admin, Manager, and Controleur can add demandes
+    return this.isAdmin() || this.isManager() || this.isControleur()
+  }
+
+  canApproveDemande(): boolean {
+    // Only Admin and Manager can approve/reject demandes
+    return this.isAdmin() || this.isManager()
+  }
+
+  canModifyDemande(): boolean {
+    // Admin, Manager, and Operateur can modify demandes
+    return this.isAdmin() || this.isManager() || this.isOperateur()
   }
 
   getStatusColor(status: string): string {
@@ -533,5 +459,8 @@ exportDemandesToExcel(type: string) {
       this.excelExportService.exportDemandesToExcel(this.demandesTe, 'Demandes_TE')
       break
   }
-} }
+  }}
 
+// NOTE: If your child components (DemandeGeneraleListComponent, etc.) have their own ngOnInit or data loading logic,
+// make sure they do NOT call any service methods or overwrite the @Input() data when using mock data.
+// Only use the @Input() data passed from this parent component.

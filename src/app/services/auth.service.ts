@@ -93,4 +93,24 @@ export class AuthService {
       console.error("Error decoding token:", error)
     }
   }
+
+  updateCurrentUserInfo(user: any): void {
+    // Get the current user from the subject
+    const currentUser = this.currentUserSubject.value;
+
+    if (currentUser) {
+      // Update the user information
+      const updatedUser = {
+        ...currentUser,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        // Keep the username as sub for JWT compatibility
+        sub: user.username
+      };
+
+      // Update the subject with the new user information
+      this.currentUserSubject.next(updatedUser);
+    }
+  }
 }

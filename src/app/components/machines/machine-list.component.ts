@@ -10,6 +10,7 @@ import { Machine } from "../../models/ilot.model"
 import { MachineFormComponent } from "./machine-form.component"
 import { IlotService } from "../../services/ilot.service"
 import { Ilot } from "../../models/ilot.model"
+import { AuthService } from "../../services/auth.service"
 
 @Component({
   selector: "app-machine-list",
@@ -21,7 +22,7 @@ import { Ilot } from "../../models/ilot.model"
         <mat-card-header>
           <mat-card-title>Gestion des Machines</mat-card-title>
           <div class="spacer"></div>
-          <button mat-raised-button color="primary" (click)="openMachineForm()">
+          <button mat-raised-button color="primary" (click)="openMachineForm()" *ngIf="canManageMachines()">
             <mat-icon>add</mat-icon>
             Nouvelle Machine
           </button>
@@ -56,12 +57,14 @@ import { Ilot } from "../../models/ilot.model"
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let machine">
-                <button mat-icon-button (click)="editMachine(machine)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteMachine(machine.id!)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <ng-container *ngIf="canManageMachines()">
+                  <button mat-icon-button (click)="editMachine(machine)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteMachine(machine.id!)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </ng-container>
               </td>
             </ng-container>
 
@@ -93,6 +96,7 @@ export class MachineListComponent implements OnInit {
     private machineService: MachineService,
     private ilotService: IlotService,
     private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -156,9 +160,22 @@ export class MachineListComponent implements OnInit {
   getIlotName(machine: Machine): string {
     if (machine.ilot && machine.ilot.name) return machine.ilot.name
     if (machine.ilot && machine.ilot.id) {
-      const found = this.ilots.find(i => i.id === machine.ilot?.id)
+      const found = this.ilots.find((i) => i.id === machine.ilot?.id)
       return found?.name ?? "-"
     }
     return "-"
+  }
+
+  isAdmin(): boolean {
+    return this.authService.hasRole("ROLE_ADMIN")
+  }
+
+  isManager(): boolean {
+    return this.authService.hasRole("ROLE_MANAGER")
+  }
+
+  canManageMachines(): boolean {
+    // Only Admin and Manager can manage machines
+    return this.isAdmin() || this.isManager()
   }
 }

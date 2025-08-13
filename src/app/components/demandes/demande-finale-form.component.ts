@@ -192,8 +192,8 @@ export class DemandeFinaleFormComponent implements OnInit {
       const demandeData = this.demandeForm.value;
 
       const request = this.data
-        ? this.demandeService.updateDemande(this.data.id!, demandeData)
-        : this.demandeService.createDemande(demandeData);
+        ? this.demandeService.updateDemandeFinale(this.data.id!, demandeData)
+        : this.demandeService.createDemandeFinale(demandeData);
 
       request.subscribe({
         next: () => this.dialogRef.close(true),

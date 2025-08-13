@@ -183,8 +183,8 @@ export class DemandeDelegueFormComponent implements OnInit {
       const demandeData = this.demandeForm.value;
 
       const request = this.data
-        ? this.demandeService.updateDemande(this.data.id!, demandeData)
-        : this.demandeService.createDemande(demandeData);
+        ? this.demandeService.updateDemandeDelegue(this.data.id!, demandeData)
+        : this.demandeService.createDemandeDelegue(demandeData);
 
       request.subscribe({
         next: () => this.dialogRef.close(true),

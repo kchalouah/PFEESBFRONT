@@ -8,6 +8,7 @@ import { MatDialogModule, MatDialog } from "@angular/material/dialog"
 import { IlotService } from "../../services/ilot.service"
 import { Ilot } from "../../models/ilot.model"
 import { IlotFormComponent } from "./ilot-form.component"
+import { AuthService } from "../../services/auth.service"
 
 @Component({
   selector: "app-ilot-list",
@@ -19,7 +20,7 @@ import { IlotFormComponent } from "./ilot-form.component"
         <mat-card-header>
           <mat-card-title>Gestion des Îlots</mat-card-title>
           <div class="spacer"></div>
-          <button mat-raised-button color="primary" (click)="openIlotForm()">
+          <button mat-raised-button color="primary" (click)="openIlotForm()" *ngIf="canManageIlots()">
             <mat-icon>add</mat-icon>
             Nouvel Îlot
           </button>
@@ -49,12 +50,14 @@ import { IlotFormComponent } from "./ilot-form.component"
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let ilot">
-                <button mat-icon-button (click)="editIlot(ilot)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteIlot(ilot.id!)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <ng-container *ngIf="canManageIlots()">
+                  <button mat-icon-button (click)="editIlot(ilot)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteIlot(ilot.id!)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </ng-container>
               </td>
             </ng-container>
 
@@ -84,6 +87,7 @@ export class IlotListComponent implements OnInit {
   constructor(
     private ilotService: IlotService,
     private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -129,5 +133,18 @@ export class IlotListComponent implements OnInit {
         },
       })
     }
+  }
+
+  isAdmin(): boolean {
+    return this.authService.hasRole("ROLE_ADMIN")
+  }
+
+  isManager(): boolean {
+    return this.authService.hasRole("ROLE_MANAGER")
+  }
+
+  canManageIlots(): boolean {
+    // Only Admin and Manager can manage ilots
+    return this.isAdmin() || this.isManager()
   }
 }

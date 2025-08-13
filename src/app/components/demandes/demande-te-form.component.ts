@@ -70,14 +70,6 @@ import { AppUser } from "../../models/user.model"
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Ingénieur TE</mat-label>
-          <mat-select formControlName="teEngineer">
-            <mat-option *ngFor="let user of users" [value]="user">
-              {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Opérateur</mat-label>
@@ -144,7 +136,6 @@ export class DemandeTeFormComponent implements OnInit {
       etq: [""],
       duree_en_minutes: [0],
       teStatus: ["NOUVEAU", Validators.required],
-      teEngineer: [""],
       operateur: [""],
       controleur: [""],
       machine: [""],
@@ -178,8 +169,8 @@ export class DemandeTeFormComponent implements OnInit {
       const demandeData = this.demandeForm.value
 
       const request = this.data
-        ? this.demandeService.updateDemande(this.data.id!, demandeData)
-        : this.demandeService.createDemande(demandeData)
+        ? this.demandeService.updateDemandeTe(this.data.id!, demandeData)
+        : this.demandeService.createDemandeTe(demandeData)
 
       request.subscribe({
         next: () => this.dialogRef.close(true),

@@ -23,8 +23,12 @@ export class UserService {
     return this.http.post<AppUser>(`${this.apiUrl}/auth/register`, user)
   }
 
-  updateUser(id: number, user: AppUser): Observable<AppUser> {
+  updateUser(id: number | string, user: AppUser): Observable<AppUser> {
     return this.http.put<AppUser>(`${this.apiUrl}/auth/${id}`, user)
+  }
+
+  getUserByUsername(username: string): Observable<AppUser> {
+    return this.http.get<AppUser>(`${this.apiUrl}/auth/by-username/${username}`)
   }
 
   deleteUser(id: number): Observable<void> {
@@ -33,5 +37,13 @@ export class UserService {
 
   getAllRoles(): Observable<UserRole[]> {
     return this.http.get<UserRole[]>(`${this.apiUrl}/auth/roles`)
+  }
+
+  changePassword(username: string, currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/change-password`, {
+      username,
+      currentPassword,
+      newPassword
+    })
   }
 }

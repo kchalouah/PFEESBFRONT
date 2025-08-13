@@ -260,20 +260,72 @@ export class UserProfileComponent implements OnInit {
 
   updateProfile() {
     if (this.profileForm.valid) {
-      const profileData = this.profileForm.value
-      this.userService.updateUser(this.currentUser.id, profileData).subscribe({
-        next: () => this.notificationService.showSuccess("Profil mis à jour avec succès"),
-        error: () => this.notificationService.showError("Erreur lors de la mise à jour du profil"),
-      })
+      const profileData = this.profileForm.value;
+      const username = profileData.username;
+
+      // First get the user by username to get the ID
+      this.userService.getUserByUsername(username).subscribe({
+        next: (user) => {
+          // Create a complete user object with all required fields
+          const updatedUser = {
+            id: user.id, // Use the ID from the fetched user
+            username: profileData.username,
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            email: profileData.email,
+            // Keep the existing password
+            password: user.password // Use the password from the fetched user
+          };
+
+          // Now update the user with the correct ID
+          this.userService.updateUser(user.id, updatedUser).subscribe({
+            next: (updatedUser) => {
+              this.notificationService.showSuccess("Profil mis à jour avec succès");
+              // Update the current user in the auth service
+              this.authService.updateCurrentUserInfo(updatedUser);
+            },
+            error: (error) => {
+              let errorMessage = "Erreur lors de la mise à jour du profil";
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message;
+              }
+              this.notificationService.showError(errorMessage);
+            }
+          });
+        },
+        error: (error) => {
+          let errorMessage = "Erreur lors de la récupération des informations utilisateur";
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+          this.notificationService.showError(errorMessage);
+        }
+      });
     }
   }
 
   changePassword() {
     if (this.passwordForm.valid) {
-      const passwordData = this.passwordForm.value
-      // Implémente ici l'appel API pour changer le mot de passe
-      this.notificationService.showSuccess("Mot de passe changé avec succès")
-      this.passwordForm.reset()
+      const passwordData = this.passwordForm.value;
+      const username = this.currentUser.sub;
+
+      this.userService.changePassword(
+        username,
+        passwordData.currentPassword,
+        passwordData.newPassword
+      ).subscribe({
+        next: (response) => {
+          this.notificationService.showSuccess("Mot de passe changé avec succès");
+          this.passwordForm.reset();
+        },
+        error: (error) => {
+          let errorMessage = "Erreur lors du changement de mot de passe";
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+          this.notificationService.showError(errorMessage);
+        }
+      });
     }
   }
 }

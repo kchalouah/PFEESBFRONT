@@ -51,6 +51,13 @@ import { UserFormComponent } from "./user-form.component"
               <td mat-cell *matCellDef="let user">{{ user.lastName }}</td>
             </ng-container>
 
+            <ng-container matColumnDef="roles">
+              <th mat-header-cell *matHeaderCellDef>Rôles</th>
+              <td mat-cell *matCellDef="let user">
+                {{ getRoleNames(user) }}
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let user">
@@ -83,8 +90,57 @@ import { UserFormComponent } from "./user-form.component"
   ],
 })
 export class UserListComponent implements OnInit {
-  users: AppUser[] = []
-  displayedColumns: string[] = ["id", "username", "email", "firstName", "lastName", "actions"]
+  users: AppUser[] = [
+    {
+      id: 1,
+      username: "mohamed.aziz",
+      email: "mohamed.aziz@gmail.com",
+      firstName: "Mohamed Aziz",
+      lastName: "el Kateb",
+      roles: [{ roleName: "ADMIN" }],
+      createdAt: new Date("2023-01-01T09:00:00"),
+      updatedAt: new Date("2023-01-10T10:00:00")
+    },
+    {
+      id: 2,
+      username: "ben.marouane",
+      email: "ben.marouane@gmail.com",
+      firstName: "Mohamed",
+      lastName: "Ben Marouane",
+      roles: [{ roleName: "MANAGER" }],
+      createdAt: new Date("2023-02-01T09:00:00"),
+      updatedAt: new Date("2023-02-10T10:00:00")
+    },
+    {
+      id: 3,
+      username: "ilyes.abidi",
+      email: "ilyes.abidi@gmail.com",
+      firstName: "Ilyes",
+      lastName: "Abidi",
+      roles: [{ roleName: "CONTROLEUR" }],
+      createdAt: new Date("2023-03-01T09:00:00"),
+      updatedAt: new Date("2023-03-10T10:00:00")
+    },
+    {
+      id: 4,
+      username: "amine.benali",
+      email: "amine.benali@gmail.com",
+      firstName: "Amine",
+      lastName: "Ben Ali",
+      roles: [{ roleName: "OPERATEUR" }],
+      createdAt: new Date("2023-04-01T09:00:00"),
+      updatedAt: new Date("2023-04-10T10:00:00")
+    }
+  ]
+  displayedColumns: string[] = [
+    "id",
+    "username",
+    "email",
+    "firstName",
+    "lastName",
+    "roles",
+    "actions"
+  ]
 
   constructor(
     private userService: UserService,
@@ -92,7 +148,8 @@ export class UserListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadUsers()
+    // Uncomment the next line to load from backend instead of mock data
+    // this.loadUsers()
   }
 
   loadUsers() {
@@ -134,5 +191,9 @@ export class UserListComponent implements OnInit {
         },
       })
     }
+  }
+
+  getRoleNames(user: AppUser): string {
+    return user.roles?.map(role => role.roleName).join(', ') || '—'
   }
 }

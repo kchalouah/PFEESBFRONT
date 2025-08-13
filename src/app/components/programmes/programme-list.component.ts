@@ -10,6 +10,7 @@ import { Programme } from "../../models/ilot.model"
 import { ProgrammeFormComponent } from "./programme-form.component"
 import { MachineService } from "../../services/machine.service"
 import { Machine } from "../../models/ilot.model"
+import { AuthService } from "../../services/auth.service"
 
 @Component({
   selector: "app-programme-list",
@@ -21,7 +22,7 @@ import { Machine } from "../../models/ilot.model"
         <mat-card-header>
           <mat-card-title>Gestion des Programmes</mat-card-title>
           <div class="spacer"></div>
-          <button mat-raised-button color="primary" (click)="openProgrammeForm()">
+          <button mat-raised-button color="primary" (click)="openProgrammeForm()" *ngIf="canManageProgrammes()">
             <mat-icon>add</mat-icon>
             Nouveau Programme
           </button>
@@ -56,12 +57,14 @@ import { Machine } from "../../models/ilot.model"
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let programme">
-                <button mat-icon-button (click)="editProgramme(programme)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteProgramme(programme.id!)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <ng-container *ngIf="canManageProgrammes()">
+                  <button mat-icon-button (click)="editProgramme(programme)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteProgramme(programme.id!)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </ng-container>
               </td>
             </ng-container>
 
@@ -85,14 +88,15 @@ import { Machine } from "../../models/ilot.model"
   ],
 })
 export class ProgrammeListComponent implements OnInit {
-  programmes: Programme[] = []
   machines: Machine[] = []
+  programmes: Programme[] = []
   displayedColumns: string[] = ["id", "name", "description", "duration", "machine", "actions"]
 
   constructor(
     private programmeService: ProgrammeService,
     private machineService: MachineService,
     private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -160,5 +164,18 @@ export class ProgrammeListComponent implements OnInit {
         },
       })
     }
+  }
+
+  isAdmin(): boolean {
+    return this.authService.hasRole("ROLE_ADMIN")
+  }
+
+  isManager(): boolean {
+    return this.authService.hasRole("ROLE_MANAGER")
+  }
+
+  canManageProgrammes(): boolean {
+    // Only Admin and Manager can manage programmes
+    return this.isAdmin() || this.isManager()
   }
 }
