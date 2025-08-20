@@ -16,7 +16,6 @@ import { DemandeService } from '../../services/demande.service';
     <div class="tab-content">
       <button mat-raised-button color="primary" (click)="openDemandeForm()">Ajouter Demande</button>
       <table mat-table [dataSource]="demandes" class="mat-elevation-z8">
-        <!-- Table columns here (same as before) -->
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef> ID </th>
           <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
@@ -52,6 +51,14 @@ import { DemandeService } from '../../services/demande.service';
         <ng-container matColumnDef="nombre_produit_controle">
           <th mat-header-cell *matHeaderCellDef> Nb Produit Contrôlé </th>
           <td mat-cell *matCellDef="let demande"> {{demande.nombre_produit_controle}} </td>
+        </ng-container>
+        <ng-container matColumnDef="ilot">
+          <th mat-header-cell *matHeaderCellDef> Ilot </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.ilot?.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="machine">
+          <th mat-header-cell *matHeaderCellDef> Machine </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.machine?.name}} </td>
         </ng-container>
         <ng-container matColumnDef="operateur">
           <th mat-header-cell *matHeaderCellDef> Opérateur </th>
@@ -94,6 +101,8 @@ export class DemandeGeneraleListComponent implements OnInit {
     'started',
     'finished',
     'nombre_produit_controle',
+    'ilot',
+    'machine',
     'operateur',
     'controleur',
     'actions'
@@ -125,4 +134,3 @@ export class DemandeGeneraleListComponent implements OnInit {
     }
   }
 }
-

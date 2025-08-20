@@ -277,8 +277,10 @@ export class UserProfileComponent implements OnInit {
             password: user.password // Use the password from the fetched user
           };
 
-          // Now update the user with the correct ID
-          this.userService.updateUser(user.id, updatedUser).subscribe({
+          // Ensure user.id is defined before calling updateUser
+          const userId: string | number = user.id !== undefined ? user.id : "";
+
+          this.userService.updateUser(userId, updatedUser).subscribe({
             next: (updatedUser) => {
               this.notificationService.showSuccess("Profil mis à jour avec succès");
               // Update the current user in the auth service

@@ -8,11 +8,12 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSelectModule } from "@angular/material/select"
 import { MatDatepickerModule } from "@angular/material/datepicker"
 import { MatNativeDateModule } from "@angular/material/core"
+import { MatCheckboxModule } from "@angular/material/checkbox"
 import { DemandeService } from "../../services/demande.service"
 import { MachineService } from "../../services/machine.service"
 import { UserService } from "../../services/user.service"
 import { DemandeFinale } from "../../models/demande.model"
-import { Machine } from "../../models/ilot.model"
+import { Ilot, Machine } from "../../models/ilot.model"
 import { AppUser } from "../../models/user.model"
 
 @Component({
@@ -28,7 +29,9 @@ import { AppUser } from "../../models/user.model"
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatCheckboxModule,
   ],
+  providers: [MatDatepickerModule, MatNativeDateModule],
   template: `
     <h2 mat-dialog-title>{{ data ? 'Modifier' : 'Créer' }} une Demande Finale</h2>
     <mat-dialog-content>
@@ -41,7 +44,9 @@ import { AppUser } from "../../models/user.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date de la demande</mat-label>
-          <input matInput type="date" formControlName="date_demande" required />
+          <input matInput [matDatepicker]="picker" formControlName="date_demande" required />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -65,6 +70,20 @@ import { AppUser } from "../../models/user.model"
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre de produits contrôlés</mat-label>
+          <input matInput type="number" formControlName="nombre_produit_controle" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ilot</mat-label>
+          <mat-select formControlName="ilot">
+            <mat-option *ngFor="let ilot of ilots" [value]="ilot">
+              {{ ilot.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Décision finale</mat-label>
           <mat-select formControlName="finalDecision">
             <mat-option value="APPROUVE">Approuvé</mat-option>
@@ -76,9 +95,9 @@ import { AppUser } from "../../models/user.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date d'approbation</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="approvedDate" />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
+          <input matInput [matDatepicker]="pickerApp" formControlName="approvedDate" />
+          <mat-datepicker-toggle matSuffix [for]="pickerApp"></mat-datepicker-toggle>
+          <mat-datepicker #pickerApp></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -117,6 +136,11 @@ import { AppUser } from "../../models/user.model"
           </mat-select>
         </mat-form-field>
 
+        <div class="checkbox-container">
+          <mat-checkbox formControlName="started">Démarrée</mat-checkbox>
+          <mat-checkbox formControlName="finished">Terminée</mat-checkbox>
+        </div>
+
       </form>
     </mat-dialog-content>
 
@@ -135,11 +159,17 @@ import { AppUser } from "../../models/user.model"
     mat-dialog-content {
       min-width: 600px;
     }
+    .checkbox-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
   `],
 })
 export class DemandeFinaleFormComponent implements OnInit {
   demandeForm: FormGroup;
   machines: Machine[] = [];
+  ilots: Ilot[] = [];
   users: AppUser[] = [];
 
   constructor(
@@ -156,17 +186,29 @@ export class DemandeFinaleFormComponent implements OnInit {
       status: ["EN_ATTENTE", Validators.required],
       etq: [""],
       duree_en_minutes: [0],
+      nombre_produit_controle: [0],
+      ilot: [""],
       finalDecision: [""],
       approvedDate: [""],
       manager: [""],
       operateur: [""],
       controleur: [""],
       machine: [""],
+      started: [false],
+      finished: [false],
+    });
+  }
+
+  loadIlots() {
+    this.machineService.getAllIlots().subscribe({
+      next: (ilots) => (this.ilots = ilots),
+      error: (error) => console.error("Error loading ilots:", error),
     });
   }
 
   ngOnInit() {
     this.loadMachines();
+    this.loadIlots();
     this.loadUsers();
     if (this.data) {
       this.demandeForm.patchValue(this.data);
@@ -179,6 +221,7 @@ export class DemandeFinaleFormComponent implements OnInit {
       error: (error) => console.error("Erreur chargement machines:", error),
     });
   }
+
 
   loadUsers() {
     this.userService.getAllUsers().subscribe({

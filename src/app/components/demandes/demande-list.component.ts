@@ -17,8 +17,9 @@ import { AuthService } from "../../services/auth.service"
 import { ExcelExportService } from '../../services/excel-export.service'
 import { DemandeGeneraleListComponent } from './demande-generale-list.component';
 import { DemandeDelegueListComponent } from './demande-delegue-list.component';
-import { DemandeFinaleListComponent } from './demande-finale-list.component';
 import { DemandeTeListComponent } from './demande-te-list.component';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: "app-demande-list",
@@ -34,8 +35,12 @@ import { DemandeTeListComponent } from './demande-te-list.component';
     MatTabsModule,
     DemandeGeneraleListComponent,
     DemandeDelegueListComponent,
-    DemandeFinaleListComponent,
-    DemandeTeListComponent
+    DemandeTeListComponent,
+    MatNativeDateModule
+  ],
+  providers: [
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_LOCALE, useValue: 'fr-FR' }
   ],
   template: `
     <div class="container">

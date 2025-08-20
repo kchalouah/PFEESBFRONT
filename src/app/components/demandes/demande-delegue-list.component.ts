@@ -24,6 +24,54 @@ import { DemandeService } from '../../services/demande.service';
           <th mat-header-cell *matHeaderCellDef> OF Demande </th>
           <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
         </ng-container>
+        <ng-container matColumnDef="date_demande">
+          <th mat-header-cell *matHeaderCellDef> Date Demande </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.date_demande}} </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Statut </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
+        </ng-container>
+        <ng-container matColumnDef="duree_en_minutes">
+          <th mat-header-cell *matHeaderCellDef> Durée (min) </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.duree_en_minutes}} </td>
+        </ng-container>
+        <ng-container matColumnDef="etq">
+          <th mat-header-cell *matHeaderCellDef> ETQ </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.etq}} </td>
+        </ng-container>
+        <ng-container matColumnDef="started">
+          <th mat-header-cell *matHeaderCellDef> Démarrée </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.started ? 'Oui' : 'Non'}} </td>
+        </ng-container>
+        <ng-container matColumnDef="finished">
+          <th mat-header-cell *matHeaderCellDef> Terminée </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.finished ? 'Oui' : 'Non'}} </td>
+        </ng-container>
+        <ng-container matColumnDef="nombre_produit_controle">
+          <th mat-header-cell *matHeaderCellDef> Nb Produit Contrôlé </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.nombre_produit_controle}} </td>
+        </ng-container>
+        <ng-container matColumnDef="ilot">
+          <th mat-header-cell *matHeaderCellDef> Ilot </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.ilot?.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="machine">
+          <th mat-header-cell *matHeaderCellDef> Machine </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.machine?.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="operateur">
+          <th mat-header-cell *matHeaderCellDef> Opérateur </th>
+          <td mat-cell *matCellDef="let demande">
+            {{demande.operateur?.firstName}} {{demande.operateur?.lastName}}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="controleur">
+          <th mat-header-cell *matHeaderCellDef> Contrôleur </th>
+          <td mat-cell *matCellDef="let demande">
+            {{demande.controleur?.firstName}} {{demande.controleur?.lastName}}
+          </td>
+        </ng-container>
         <ng-container matColumnDef="delegatedTo">
           <th mat-header-cell *matHeaderCellDef> Délégué à </th>
           <td mat-cell *matCellDef="let demande"> {{demande.delegatedTo?.firstName}} {{demande.delegatedTo?.lastName}} </td>
@@ -31,10 +79,6 @@ import { DemandeService } from '../../services/demande.service';
         <ng-container matColumnDef="delegationDate">
           <th mat-header-cell *matHeaderCellDef> Date de Délégation </th>
           <td mat-cell *matCellDef="let demande"> {{demande.delegationDate | date:'dd/MM/yyyy'}} </td>
-        </ng-container>
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Statut </th>
-          <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
         </ng-container>
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
@@ -58,9 +102,19 @@ export class DemandeDelegueListComponent implements OnInit {
   demandeDelegueColumns: string[] = [
     'id',
     'of_demande',
+    'date_demande',
+    'status',
+    'duree_en_minutes',
+    'etq',
+    'started',
+    'finished',
+    'nombre_produit_controle',
+    'ilot',
+    'machine',
+    'operateur',
+    'controleur',
     'delegatedTo',
     'delegationDate',
-    'status',
     'actions'
   ];
 
@@ -90,4 +144,3 @@ export class DemandeDelegueListComponent implements OnInit {
     }
   }
 }
-

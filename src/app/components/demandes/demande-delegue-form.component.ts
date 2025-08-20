@@ -8,11 +8,12 @@ import { MatButtonModule } from "@angular/material/button"
 import { MatSelectModule } from "@angular/material/select"
 import { MatDatepickerModule } from "@angular/material/datepicker"
 import { MatNativeDateModule } from "@angular/material/core"
+import { MatCheckboxModule } from "@angular/material/checkbox"
 import { DemandeService } from "../../services/demande.service"
 import { MachineService } from "../../services/machine.service"
 import { UserService } from "../../services/user.service"
 import { DemandeDelegue } from "../../models/demande.model"
-import { Machine } from "../../models/ilot.model"
+import { Ilot, Machine } from "../../models/ilot.model"
 import { AppUser } from "../../models/user.model"
 
 @Component({
@@ -28,7 +29,9 @@ import { AppUser } from "../../models/user.model"
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatCheckboxModule,
   ],
+  providers: [MatDatepickerModule, MatNativeDateModule],
   template: `
     <h2 mat-dialog-title>{{ data ? 'Modifier' : 'Créer' }} une Demande Déléguée</h2>
     <mat-dialog-content>
@@ -41,7 +44,9 @@ import { AppUser } from "../../models/user.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date</mat-label>
-          <input matInput type="date" formControlName="date_demande" required />
+          <input matInput [matDatepicker]="pickerDateDemande" formControlName="date_demande" required />
+          <mat-datepicker-toggle matSuffix [for]="pickerDateDemande"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDateDemande></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -107,6 +112,11 @@ import { AppUser } from "../../models/user.model"
           </mat-select>
         </mat-form-field>
 
+        <div class="checkbox-container">
+          <mat-checkbox formControlName="started">Démarrée</mat-checkbox>
+          <mat-checkbox formControlName="finished">Terminée</mat-checkbox>
+        </div>
+
       </form>
     </mat-dialog-content>
 
@@ -124,6 +134,11 @@ import { AppUser } from "../../models/user.model"
     }
     mat-dialog-content {
       min-width: 600px;
+    }
+    .checkbox-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
     }
   `],
 })
@@ -153,6 +168,10 @@ export class DemandeDelegueFormComponent implements OnInit {
       operateur: [""],
       controleur: [""],
       machine: [""],
+      started: [false],
+      finished: [false],
+      nombre_produit_controle: [0],
+      ilot: [""],
     });
   }
 

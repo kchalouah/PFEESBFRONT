@@ -6,11 +6,14 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatInputModule } from "@angular/material/input"
 import { MatButtonModule } from "@angular/material/button"
 import { MatSelectModule } from "@angular/material/select"
+import { MatDatepickerModule } from "@angular/material/datepicker"
+import { MatNativeDateModule } from "@angular/material/core"
+import { MatCheckboxModule } from "@angular/material/checkbox"
 import { DemandeService } from "../../services/demande.service"
 import { MachineService } from "../../services/machine.service"
 import { UserService } from "../../services/user.service"
 import { DemandeTe } from "../../models/demande.model"
-import { Machine } from "../../models/ilot.model"
+import { Ilot, Machine } from "../../models/ilot.model"
 import { AppUser } from "../../models/user.model"
 
 @Component({
@@ -24,7 +27,11 @@ import { AppUser } from "../../models/user.model"
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatCheckboxModule,
   ],
+  providers: [MatDatepickerModule, MatNativeDateModule],
   template: `
     <h2 mat-dialog-title>{{ data ? 'Modifier' : 'Créer' }} une Demande TE</h2>
     <mat-dialog-content>
@@ -36,7 +43,9 @@ import { AppUser } from "../../models/user.model"
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Date de la demande</mat-label>
-          <input matInput type="date" formControlName="date_demande" required />
+          <input matInput [matDatepicker]="picker" formControlName="date_demande" required />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -60,6 +69,20 @@ import { AppUser } from "../../models/user.model"
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre de produits contrôlés</mat-label>
+          <input matInput type="number" formControlName="nombre_produit_controle" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ilot</mat-label>
+          <mat-select formControlName="ilot">
+            <mat-option *ngFor="let ilot of ilots" [value]="ilot">
+              {{ ilot.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Statut TE</mat-label>
           <mat-select formControlName="teStatus">
             <mat-option value="NOUVEAU">Nouveau</mat-option>
@@ -69,7 +92,6 @@ import { AppUser } from "../../models/user.model"
             <mat-option value="REJETE">Rejeté</mat-option>
           </mat-select>
         </mat-form-field>
-
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Opérateur</mat-label>
@@ -97,6 +119,11 @@ import { AppUser } from "../../models/user.model"
             </mat-option>
           </mat-select>
         </mat-form-field>
+
+        <div class="checkbox-container">
+          <mat-checkbox formControlName="started">Démarrée</mat-checkbox>
+          <mat-checkbox formControlName="finished">Terminée</mat-checkbox>
+        </div>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -114,11 +141,17 @@ import { AppUser } from "../../models/user.model"
     mat-dialog-content {
       min-width: 600px;
     }
+    .checkbox-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
   `],
 })
 export class DemandeTeFormComponent implements OnInit {
   demandeForm: FormGroup
   machines: Machine[] = []
+  ilots: Ilot[] = []
   users: AppUser[] = []
 
   constructor(
@@ -135,15 +168,20 @@ export class DemandeTeFormComponent implements OnInit {
       status: ["EN_ATTENTE", Validators.required],
       etq: [""],
       duree_en_minutes: [0],
+      nombre_produit_controle: [0],
+      ilot: [""],
       teStatus: ["NOUVEAU", Validators.required],
       operateur: [""],
       controleur: [""],
       machine: [""],
+      started: [false],
+      finished: [false],
     })
   }
 
   ngOnInit() {
     this.loadMachines()
+    this.loadIlots()
     this.loadUsers()
     if (this.data) {
       this.demandeForm.patchValue(this.data)
@@ -154,6 +192,13 @@ export class DemandeTeFormComponent implements OnInit {
     this.machineService.getAllMachines().subscribe({
       next: (machines) => this.machines = machines,
       error: (error) => console.error("Erreur chargement machines:", error),
+    })
+  }
+
+  loadIlots() {
+    this.machineService.getAllIlots().subscribe({
+      next: (ilots: Ilot[]) => this.ilots = ilots,
+      error: (error) => console.error("Erreur chargement ilots:", error),
     })
   }
 

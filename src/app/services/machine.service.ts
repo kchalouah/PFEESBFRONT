@@ -1,18 +1,24 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { Observable } from "rxjs"
-import { Machine } from "../models/ilot.model"
+import { Machine, Ilot } from "../models/ilot.model" // <-- add Ilot import
 
 @Injectable({
   providedIn: "root",
 })
 export class MachineService {
   private apiUrl = "http://localhost:8080/api/machines"
+  private ilotApiUrl = "http://localhost:8080/api/ilots" // <-- add ilot endpoint
 
   constructor(private http: HttpClient) {}
 
   getAllMachines(): Observable<Machine[]> {
     return this.http.get<Machine[]>(this.apiUrl)
+  }
+
+  // Add this method to fetch ilots
+  getAllIlots(): Observable<Ilot[]> {
+    return this.http.get<Ilot[]>(this.ilotApiUrl)
   }
 
   getMachineById(id: number): Observable<Machine> {

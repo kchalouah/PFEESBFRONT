@@ -7,6 +7,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatDividerModule } from "@angular/material/divider";
 import { AuthService } from "./services/auth.service";
+import { DataInitializerService } from "./services/data-initializer.service";
 
 @Component({
   selector: "app-root",
@@ -154,13 +155,39 @@ export class AppComponent implements OnInit {
   username: string = '';
   userRole: string = '';
 
-  constructor(public authService: AuthService) {}
+  constructor(
+    public authService: AuthService,
+    private dataInitializerService: DataInitializerService
+  ) {}
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.username = user?.sub || 'Utilisateur';
       this.userRole = user?.roles?.[0] || '';
+
+      // Initialize database with sample data if user is authenticated
+      if (user) {
+        this.initializeDatabase();
+      }
+    });
+  }
+
+  /**
+   * Initialize the database with sample data
+   */
+  private initializeDatabase() {
+    this.dataInitializerService.initializeData().subscribe({
+      next: (success) => {
+        if (success) {
+          console.log('Database initialized successfully');
+        } else {
+          console.warn('Database initialization failed');
+        }
+      },
+      error: (error) => {
+        console.error('Error initializing database:', error);
+      }
     });
   }
 
