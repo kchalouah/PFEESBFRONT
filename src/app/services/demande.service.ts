@@ -112,11 +112,11 @@ export class DemandeService {
 
 
   approveDemande(id: number, managerId?: number): Observable<DemandeFinale> {
-    return this.setFinalDecision(id, 'APPROVED', managerId);
+    return this.setFinalDecision(id, 'APPROUVE', managerId);
   }
 
   rejectDemande(id: number, managerId?: number): Observable<DemandeFinale> {
-    return this.setFinalDecision(id, 'REJECTED', managerId);
+    return this.setFinalDecision(id, 'REJETE', managerId);
   }
 
 
@@ -149,4 +149,3 @@ export class DemandeService {
     return this.http.post<DemandeTe[]>(`${this.apiUrl}/demandes_te/batch`, demandes)
   }
 }
-

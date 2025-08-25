@@ -18,6 +18,7 @@ import { ExcelExportService } from '../../services/excel-export.service'
 import { DemandeGeneraleListComponent } from './demande-generale-list.component';
 import { DemandeDelegueListComponent } from './demande-delegue-list.component';
 import { DemandeTeListComponent } from './demande-te-list.component';
+import { DemandeFinaleListComponent } from './demande-finale-list.component';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
 
@@ -36,6 +37,7 @@ import { MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
     DemandeGeneraleListComponent,
     DemandeDelegueListComponent,
     DemandeTeListComponent,
+    DemandeFinaleListComponent,
     MatNativeDateModule
   ],
   providers: [
@@ -76,8 +78,8 @@ import { MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
                 </button>
               </div>
               <!-- Table with approve/reject buttons for demandes finales -->
+              <!-- Commented out the direct table implementation as we're using the component below
               <table mat-table [dataSource]="demandesFinale" class="mat-elevation-z8">
-                <!-- Columns -->
                 <ng-container matColumnDef="id">
                   <th mat-header-cell *matHeaderCellDef> ID </th>
                   <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
@@ -110,8 +112,8 @@ import { MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
                 <tr mat-header-row *matHeaderRowDef="['id', 'of_demande', 'date_demande', 'status', 'finalDecision', 'actions']"></tr>
                 <tr mat-row *matRowDef="let row; columns: ['id', 'of_demande', 'date_demande', 'status', 'finalDecision', 'actions'];"></tr>
               </table>
-              <!-- Optionally keep the old list below if needed -->
-              <!-- <app-demande-finale-list [demandesFinale]="demandesFinale"></app-demande-finale-list> -->
+              -->
+              <app-demande-finale-list [demandesFinale]="demandesFinale" (demandeFinaleChanged)="loadDemandesFinale()"></app-demande-finale-list>
             </mat-tab>
             <mat-tab label="Demandes TE">
               <div class="tab-header">

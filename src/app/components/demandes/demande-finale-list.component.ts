@@ -1,36 +1,71 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DemandeFinale } from '../../models/demande.model';
 import { DemandeFinaleFormComponent } from './demande-finale-form.component';
 import { DemandeService } from '../../services/demande.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-demande-finale-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatDialogModule, DatePipe, MatSortModule],
+  styles: [`
+    .tab-content {
+      padding: 16px;
+    }
+    table {
+      width: 100%;
+      margin-top: 16px;
+    }
+    .status-waiting, .decision-waiting {
+      color: #ff9800;
+      font-weight: 500;
+    }
+    .status-in-progress {
+      color: #2196f3;
+      font-weight: 500;
+    }
+    .status-completed, .decision-approved {
+      color: #4caf50;
+      font-weight: 500;
+    }
+    .status-cancelled, .decision-rejected {
+      color: #f44336;
+      font-weight: 500;
+    }
+    .decision-postponed {
+      color: #9c27b0;
+      font-weight: 500;
+    }
+  `],
   template: `
     <div class="tab-content">
       <button mat-raised-button color="primary" (click)="openDemandeFinaleForm()">Ajouter Demande Finale</button>
-      <table mat-table [dataSource]="demandesFinale" class="mat-elevation-z8">
+      <table mat-table [dataSource]="demandesFinale" matSort (matSortChange)="sortData($event)" class="mat-elevation-z8">
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef> ID </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
           <td mat-cell *matCellDef="let demande"> {{demande.id}} </td>
         </ng-container>
         <ng-container matColumnDef="of_demande">
-          <th mat-header-cell *matHeaderCellDef> OF Demande </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> OF Demande </th>
           <td mat-cell *matCellDef="let demande"> {{demande.of_demande}} </td>
         </ng-container>
         <ng-container matColumnDef="date_demande">
-          <th mat-header-cell *matHeaderCellDef> Date Demande </th>
-          <td mat-cell *matCellDef="let demande"> {{demande.date_demande}} </td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Date Demande </th>
+          <td mat-cell *matCellDef="let demande"> {{demande.date_demande | date:'dd/MM/yyyy'}} </td>
         </ng-container>
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef> Statut </th>
-          <td mat-cell *matCellDef="let demande"> {{demande.status}} </td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Statut </th>
+          <td mat-cell *matCellDef="let demande">
+            <span [ngClass]="getStatusClass(demande.status)">
+              {{getStatusLabel(demande.status)}}
+            </span>
+          </td>
         </ng-container>
         <ng-container matColumnDef="duree_en_minutes">
           <th mat-header-cell *matHeaderCellDef> Durée (min) </th>
@@ -73,8 +108,12 @@ import { DemandeService } from '../../services/demande.service';
           </td>
         </ng-container>
         <ng-container matColumnDef="finalDecision">
-          <th mat-header-cell *matHeaderCellDef> Décision Finale </th>
-          <td mat-cell *matCellDef="let demande"> {{demande.finalDecision}} </td>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Décision Finale </th>
+          <td mat-cell *matCellDef="let demande">
+            <span [ngClass]="getDecisionClass(demande.finalDecision)">
+              {{getDecisionLabel(demande.finalDecision)}}
+            </span>
+          </td>
         </ng-container>
         <ng-container matColumnDef="approvedDate">
           <th mat-header-cell *matHeaderCellDef> Date d'Approbation </th>
@@ -95,6 +134,16 @@ import { DemandeService } from '../../services/demande.service';
             <button mat-icon-button color="warn" (click)="deleteDemandeFinale(demande.id!)">
               <mat-icon>delete</mat-icon>
             </button>
+            <ng-container *ngIf="canApproveDemande()">
+              <button mat-button color="primary" (click)="approveDemande(demande.id!)"
+                      [disabled]="demande.finalDecision === 'APPROUVE'">
+                Approuver
+              </button>
+              <button mat-button color="warn" (click)="rejectDemande(demande.id!)"
+                      [disabled]="demande.finalDecision === 'REJETE'">
+                Rejeter
+              </button>
+            </ng-container>
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="demandeFinaleColumns"></tr>
@@ -105,6 +154,8 @@ import { DemandeService } from '../../services/demande.service';
 })
 export class DemandeFinaleListComponent implements OnInit {
   @Input() demandesFinale: DemandeFinale[] = [];
+  @Output() demandeFinaleChanged = new EventEmitter<boolean>();
+  private sortedData: DemandeFinale[] = [];
   demandeFinaleColumns: string[] = [
     'id',
     'of_demande',
@@ -125,7 +176,11 @@ export class DemandeFinaleListComponent implements OnInit {
     'actions'
   ];
 
-  constructor(private dialog: MatDialog, private demandeService: DemandeService) {}
+  constructor(
+    private dialog: MatDialog,
+    private demandeService: DemandeService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {}
 
@@ -136,7 +191,8 @@ export class DemandeFinaleListComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Optionally emit event to parent to reload
+        // Emit event to parent to reload
+        this.demandeFinaleChanged.emit(true);
       }
     });
   }
@@ -147,7 +203,129 @@ export class DemandeFinaleListComponent implements OnInit {
 
   deleteDemandeFinale(id: number) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette demande finale ?')) {
-      this.demandeService.deleteDemandeFinale(id).subscribe();
+      this.demandeService.deleteDemandeFinale(id).subscribe({
+        next: () => {
+          // Emit event to parent to reload
+          this.demandeFinaleChanged.emit(true);
+        },
+        error: (error) => console.error('Error deleting demande finale:', error)
+      });
     }
+  }
+
+  getStatusClass(status: string | undefined): string {
+    if (!status) return '';
+    switch (status) {
+      case 'EN_ATTENTE': return 'status-waiting';
+      case 'EN_COURS': return 'status-in-progress';
+      case 'TERMINE': return 'status-completed';
+      case 'ANNULE': return 'status-cancelled';
+      default: return '';
+    }
+  }
+
+  getStatusLabel(status: string | undefined): string {
+    if (!status) return 'Non défini';
+    switch (status) {
+      case 'EN_ATTENTE': return 'En attente';
+      case 'EN_COURS': return 'En cours';
+      case 'TERMINE': return 'Terminé';
+      case 'ANNULE': return 'Annulé';
+      default: return status;
+    }
+  }
+
+  getDecisionClass(decision: string | undefined): string {
+    if (!decision) return '';
+    switch (decision) {
+      case 'APPROUVE': return 'decision-approved';
+      case 'REJETE': return 'decision-rejected';
+      case 'EN_ATTENTE_APPROBATION': return 'decision-waiting';
+      case 'REPORTE': return 'decision-postponed';
+      default: return '';
+    }
+  }
+
+  getDecisionLabel(decision: string | undefined): string {
+    if (!decision) return 'Non défini';
+    switch (decision) {
+      case 'APPROUVE': return 'Approuvé';
+      case 'REJETE': return 'Rejeté';
+      case 'EN_ATTENTE_APPROBATION': return 'En attente d\'approbation';
+      case 'REPORTE': return 'Reporté';
+      default: return decision;
+    }
+  }
+
+  sortData(sort: Sort) {
+    const data = [...this.demandesFinale];
+    if (!sort.active || sort.direction === '') {
+      this.demandesFinale = data;
+      return;
+    }
+
+    this.demandesFinale = data.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'id': return this.compare(a.id, b.id, isAsc);
+        case 'of_demande': return this.compare(a.of_demande, b.of_demande, isAsc);
+        case 'date_demande': return this.compare(a.date_demande, b.date_demande, isAsc);
+        case 'status': return this.compare(a.status, b.status, isAsc);
+        case 'finalDecision': return this.compare(a.finalDecision, b.finalDecision, isAsc);
+        default: return 0;
+      }
+    });
+  }
+
+  private compare(a: any, b: any, isAsc: boolean) {
+    if (a === undefined && b === undefined) return 0;
+    if (a === undefined) return isAsc ? -1 : 1;
+    if (b === undefined) return isAsc ? 1 : -1;
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  }
+
+  // Role-based access control methods
+  isAdmin(): boolean {
+    return this.authService.hasRole("ROLE_ADMIN");
+  }
+
+  isManager(): boolean {
+    return this.authService.hasRole("ROLE_MANAGER");
+  }
+
+  canApproveDemande(): boolean {
+    // Only Admin and Manager can approve/reject demandes
+    return this.isAdmin() || this.isManager();
+  }
+
+  // Approve and reject methods
+  approveDemande(id: number) {
+    this.authService.currentUser$.subscribe(user => {
+      if (!user || !user.id) {
+        console.error("Manager id not found for approval");
+        return;
+      }
+      this.demandeService.approveDemande(id, user.id).subscribe({
+        next: () => {
+          this.demandeFinaleChanged.emit(true);
+        },
+        error: (error) => console.error("Error approving demande:", error)
+      });
+    });
+  }
+
+  rejectDemande(id: number) {
+    this.authService.currentUser$.subscribe(user => {
+      if (!user || !user.id) {
+        console.error("Manager id not found for rejection");
+        return;
+      }
+      this.demandeService.rejectDemande(id, user.id).subscribe({
+        next: () => {
+          this.demandeFinaleChanged.emit(true);
+        },
+        error: (error) => console.error("Error rejecting demande:", error)
+      });
+    });
   }
 }

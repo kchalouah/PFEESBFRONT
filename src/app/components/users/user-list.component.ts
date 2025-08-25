@@ -90,48 +90,7 @@ import { UserFormComponent } from "./user-form.component"
   ],
 })
 export class UserListComponent implements OnInit {
-  users: AppUser[] = [
-    {
-      id: 1,
-      username: "mohamed.aziz",
-      email: "mohamed.aziz@gmail.com",
-      firstName: "Mohamed Aziz",
-      lastName: "el Kateb",
-      roles: [{ roleName: "ADMIN" }],
-      createdAt: new Date("2023-01-01T09:00:00"),
-      updatedAt: new Date("2023-01-10T10:00:00")
-    },
-    {
-      id: 2,
-      username: "ben.marouane",
-      email: "ben.marouane@gmail.com",
-      firstName: "Mohamed",
-      lastName: "Ben Marouane",
-      roles: [{ roleName: "MANAGER" }],
-      createdAt: new Date("2023-02-01T09:00:00"),
-      updatedAt: new Date("2023-02-10T10:00:00")
-    },
-    {
-      id: 3,
-      username: "ilyes.abidi",
-      email: "ilyes.abidi@gmail.com",
-      firstName: "Ilyes",
-      lastName: "Abidi",
-      roles: [{ roleName: "CONTROLEUR" }],
-      createdAt: new Date("2023-03-01T09:00:00"),
-      updatedAt: new Date("2023-03-10T10:00:00")
-    },
-    {
-      id: 4,
-      username: "amine.benali",
-      email: "amine.benali@gmail.com",
-      firstName: "Amine",
-      lastName: "Ben Ali",
-      roles: [{ roleName: "OPERATEUR" }],
-      createdAt: new Date("2023-04-01T09:00:00"),
-      updatedAt: new Date("2023-04-10T10:00:00")
-    }
-  ]
+  users: AppUser[] = []
   displayedColumns: string[] = [
     "id",
     "username",
@@ -148,8 +107,7 @@ export class UserListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Uncomment the next line to load from backend instead of mock data
-    // this.loadUsers()
+    this.loadUsers()
   }
 
   loadUsers() {
