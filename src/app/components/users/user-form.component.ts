@@ -144,9 +144,24 @@ export class UserFormComponent implements OnInit {
   onSave() {
     if (this.userForm.valid) {
       const userData = this.userForm.value
+      // Transform roleIds to array of {id, roleName}
+      const roles = (userData.roleIds || []).map((id: number) => {
+        const role = this.roles.find(r => r.id === id);
+        return { id, roleName: role?.roleName };
+      })
+      const payload: any = {
+        username: userData.username,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        roles: roles
+      }
+      if (!this.data) {
+        payload.password = userData.password
+      }
 
       if (this.data) {
-        this.userService.updateUser(this.data.id!, userData).subscribe({
+        this.userService.updateUser(this.data.id!, payload).subscribe({
           next: () => {
             this.dialogRef.close(true)
           },
@@ -155,7 +170,7 @@ export class UserFormComponent implements OnInit {
           },
         })
       } else {
-        this.userService.createUser(userData).subscribe({
+        this.userService.createUser(payload).subscribe({
           next: () => {
             this.dialogRef.close(true)
           },

@@ -23,9 +23,11 @@ import { DataInitializerService } from "./services/data-initializer.service";
     MatDividerModule
   ],
   template: `
-    <mat-toolbar color="white" class="main-toolbar">
+    <mat-toolbar *ngIf="authService.isAuthenticated()" color="white" class="main-toolbar">
       <div class="toolbar-left">
-        <img src="assets/images/safran-logo.png" alt="Logo" class="logo-image" />
+        <a routerLink="/">
+          <img src="assets/images/safran-logo.png" alt="Logo" class="logo-image" />
+        </a>
 
         <!-- Liens communs -->
         <a mat-button routerLink="/dashboard">
@@ -66,10 +68,7 @@ import { DataInitializerService } from "./services/data-initializer.service";
             <mat-icon>schedule</mat-icon>
             Programmes
           </a>
-          <a mat-button routerLink="/metiers">
-            <mat-icon>work</mat-icon>
-            Métiers
-          </a>
+
         </ng-container>
 
         <!-- CONTRÔLEUR -->
@@ -101,10 +100,7 @@ import { DataInitializerService } from "./services/data-initializer.service";
             <mat-icon>person</mat-icon>
             <span>Profil</span>
           </button>
-          <button mat-menu-item routerLink="/settings">
-            <mat-icon>settings</mat-icon>
-            <span>Paramètres</span>
-          </button>
+
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>

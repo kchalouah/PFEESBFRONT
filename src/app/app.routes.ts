@@ -1,15 +1,22 @@
 import type { Routes } from "@angular/router"
 import { AuthGuard } from "./guards/auth.guard"
+import { HomeGuard } from "./guards/home.guard"
 
 export const routes: Routes = [
-  { path: "", redirectTo: "/login", pathMatch: "full" },
+  {
+    path: "",
+    loadComponent: () => import("./components/home/home.component").then((m) => m.HomeComponent),
+    canActivate: [HomeGuard],
+  },
   {
     path: "login",
     loadComponent: () => import("./components/auth/login.component").then((m) => m.LoginComponent),
+    canActivate: [HomeGuard],
   },
   {
     path: "register",
     loadComponent: () => import("./components/auth/register.component").then((m) => m.RegisterComponent),
+    canActivate: [HomeGuard],
   },
   {
     path: "dashboard",
@@ -51,5 +58,5 @@ export const routes: Routes = [
     loadComponent: () => import("./components/profile/user-profile.component").then((m) => m.UserProfileComponent),
     canActivate: [AuthGuard],
   },
-  { path: "**", redirectTo: "/login" },
+  { path: "**", redirectTo: "/" },
 ];

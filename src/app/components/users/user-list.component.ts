@@ -36,6 +36,11 @@ import { UserFormComponent } from "./user-form.component"
               <td mat-cell *matCellDef="let user">{{ user.username }}</td>
             </ng-container>
 
+            <ng-container matColumnDef="password">
+              <th mat-header-cell *matHeaderCellDef>Mot de passe</th>
+              <td mat-cell *matCellDef="let user">{{ user.password || '••••••••' }}</td>
+            </ng-container>
+
             <ng-container matColumnDef="email">
               <th mat-header-cell *matHeaderCellDef>Email</th>
               <td mat-cell *matCellDef="let user">{{ user.email }}</td>
@@ -94,6 +99,7 @@ export class UserListComponent implements OnInit {
   displayedColumns: string[] = [
     "id",
     "username",
+    "password",
     "email",
     "firstName",
     "lastName",
